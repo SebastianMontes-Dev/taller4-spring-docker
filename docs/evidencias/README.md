@@ -15,3 +15,5 @@ Capturas tomadas de la ejecución real del proyecto (Docker Desktop, Windows 11,
 | `09-eureka-dashboard.png` | Panel de Eureka con `API-GATEWAY`, `PEDIDO-SERVICE` y `PRODUCTO-SERVICE (2)` en `UP` |
 | `10-seguridad-env.png` | `.env` ignorado por git y no versionado; solo `.env.example` está en el repositorio |
 | `11-github-repositorio.png` | Repositorio publicado en GitHub |
+| `12-clon-limpio-healthy.png` | Prueba de aceptación: clon limpio del repositorio, `cp .env.example .env`, `docker compose up -d --build` y los 8 contenedores en `healthy` con el gateway respondiendo `200` |
+| `13-diagrama-arquitectura.png` | Diagrama de arquitectura renderizado (el mismo Mermaid del README) |

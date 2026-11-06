@@ -14,24 +14,24 @@ hasta el Paso 5 (varios microservicios con Eureka y Gateway).
 
 ```mermaid
 flowchart LR
-    cliente([Cliente / Postman]) -->|":8080"| gw[api-gateway]
-    admin([Navegador]) -->|":8761 panel"| eureka
+    cliente([Cliente / Postman]) -->|puerto 8080| gw[api-gateway]
+    admin([Navegador]) -->|puerto 8761| eureka
 
-    subgraph red["Red de Docker Compose (solo gateway y panel de Eureka publican puertos)"]
-        gw -->|"lb://producto-service"| prod["producto-service<br/>2 réplicas :8081"]
-        gw -->|"lb://pedido-service"| ped["pedido-service :8082"]
-        ped -->|"lb://producto-service<br/>consulta precio y stock"| prod
+    subgraph compose["Red de Docker Compose - solo el gateway y el panel de Eureka publican puertos"]
+        gw -->|lb producto-service| prod["producto-service<br/>2 replicas :8081"]
+        gw -->|lb pedido-service| ped["pedido-service :8082"]
+        ped -->|consulta precio y stock| prod
 
-        cfg[config-server :8888]
-        eureka[eureka-server :8761]
+        cfg["config-server :8888"]
+        eureka["eureka-server :8761"]
 
-        gw -. registra / descubre .-> eureka
-        prod -. registra .-> eureka
-        ped -. registra .-> eureka
-        eureka -. configuración .-> cfg
-        gw -. configuración .-> cfg
-        prod -. configuración .-> cfg
-        ped -. configuración .-> cfg
+        gw -.->|registro y descubrimiento| eureka
+        prod -.->|registro| eureka
+        ped -.->|registro| eureka
+        eureka -.->|configuracion| cfg
+        gw -.->|configuracion| cfg
+        prod -.->|configuracion| cfg
+        ped -.->|configuracion| cfg
 
         prod --> dbp[("postgres-productos<br/>volumen pg-productos")]
         ped --> dbd[("postgres-pedidos<br/>volumen pg-pedidos")]
