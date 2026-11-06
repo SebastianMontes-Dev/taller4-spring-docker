@@ -12,31 +12,9 @@ hasta el Paso 5 (varios microservicios con Eureka y Gateway).
 
 ## Arquitectura
 
-```mermaid
-flowchart LR
-    cliente([Cliente / Postman]) -->|puerto 8080| gw[api-gateway]
-    admin([Navegador]) -->|puerto 8761| eureka
+![Diagrama de arquitectura](docs/img/arquitectura.png)
 
-    subgraph compose["Red de Docker Compose - solo el gateway y el panel de Eureka publican puertos"]
-        gw -->|lb producto-service| prod["producto-service<br/>2 replicas :8081"]
-        gw -->|lb pedido-service| ped["pedido-service :8082"]
-        ped -->|consulta precio y stock| prod
-
-        cfg["config-server :8888"]
-        eureka["eureka-server :8761"]
-
-        gw -.->|registro y descubrimiento| eureka
-        prod -.->|registro| eureka
-        ped -.->|registro| eureka
-        eureka -.->|configuracion| cfg
-        gw -.->|configuracion| cfg
-        prod -.->|configuracion| cfg
-        ped -.->|configuracion| cfg
-
-        prod --> dbp[("postgres-productos<br/>volumen pg-productos")]
-        ped --> dbd[("postgres-pedidos<br/>volumen pg-pedidos")]
-    end
-```
+Código fuente del diagrama (Mermaid): [`docs/arquitectura.mmd`](docs/arquitectura.mmd).
 
 | Servicio | Puerto interno | Publicado al equipo | Depende de |
 |---|---|---|---|
