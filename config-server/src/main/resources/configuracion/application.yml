@@ -1,0 +1,12 @@
+# Configuracion compartida por todos los servicios (servida por el Config Server)
+management:
+  info:
+    env:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+
+info:
+  proyecto: ecommerce-docker
+  entorno: docker-compose
