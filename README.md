@@ -99,6 +99,8 @@ curl -X POST http://localhost:8080/api/pedidos -H "Content-Type: application/jso
      -d '{"productoId":1,"cantidad":2}'
 ```
 
+La colección completa (14 peticiones) se ejecutó contra el stack: 14/14 correctas, ver [`docs/evidencias/14-coleccion-postman-ejecutada.png`](docs/evidencias/14-coleccion-postman-ejecutada.png).
+
 Errores controlados: `400` validación, `404` producto/pedido inexistente, `409` stock insuficiente,
 `503` si `producto-service` no está disponible.
 
@@ -131,6 +133,7 @@ taller4-spring-docker/
 ├── producto-service/       # catálogo (JPA + PostgreSQL)
 ├── pedido-service/         # pedidos (JPA + PostgreSQL + cliente de producto-service)
 ├── postman/                # colección de ejemplo
+├── CLAUDE.md               # guía del repo para asistentes de código
 └── docs/                   # capturas de evidencia
 ```
 

@@ -17,3 +17,4 @@ Capturas tomadas de la ejecución real del proyecto (Docker Desktop, Windows 11,
 | `11-github-repositorio.png` | Repositorio publicado en GitHub |
 | `12-clon-limpio-healthy.png` | Prueba de aceptación: clon limpio del repositorio, `cp .env.example .env`, `docker compose up -d --build` y los 8 contenedores en `healthy` con el gateway respondiendo `200` |
 | `13-diagrama-arquitectura.png` | Diagrama de arquitectura renderizado (el mismo Mermaid del README) |
+| `14-coleccion-postman-ejecutada.png` | Las 14 peticiones de la colección Postman ejecutadas en orden contra el gateway: 14/14 correctas |
