@@ -1,0 +1,151 @@
+{
+  "info": {
+    "name": "E-commerce Docker (Taller 4)",
+    "description": "Peticiones de ejemplo contra el api-gateway (http://localhost:8080). Ejecutar en orden: la creacion del producto guarda su id en {{productoId}} y la del pedido en {{pedidoId}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "eurekaUrl", "value": "http://localhost:8761" },
+    { "key": "productoId", "value": "1" },
+    { "key": "pedidoId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "00 - Salud del gateway",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Gateway UP', () => {",
+        "  pm.response.to.have.status(200);",
+        "  pm.expect(pm.response.json().status).to.eql('UP');",
+        "});"
+      ] } }],
+      "request": { "method": "GET", "url": "{{baseUrl}}/actuator/health" }
+    },
+    {
+      "name": "01 - Servicios registrados en Eureka",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Eureka responde', () => pm.response.to.have.status(200));"
+      ] } }],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{eurekaUrl}}/eureka/apps"
+      }
+    },
+    {
+      "name": "02 - Crear producto",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('201 Created', () => pm.response.to.have.status(201));",
+        "pm.collectionVariables.set('productoId', pm.response.json().id);"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/productos",
+        "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Teclado mecanico\",\n  \"descripcion\": \"Switches azules, layout espanol\",\n  \"precio\": 120000.00,\n  \"stock\": 10\n}" }
+      }
+    },
+    {
+      "name": "03 - Listar productos",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK y arreglo', () => {",
+        "  pm.response.to.have.status(200);",
+        "  pm.expect(pm.response.json()).to.be.an('array');",
+        "});"
+      ] } }],
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/productos" }
+    },
+    {
+      "name": "04 - Obtener producto por id",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));"
+      ] } }],
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/productos/{{productoId}}" }
+    },
+    {
+      "name": "05 - Actualizar producto",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));"
+      ] } }],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/productos/{{productoId}}",
+        "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Teclado mecanico\",\n  \"descripcion\": \"Switches rojos, layout espanol\",\n  \"precio\": 135000.00,\n  \"stock\": 10\n}" }
+      }
+    },
+    {
+      "name": "06 - Instancia que atiende (balanceo entre replicas)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));"
+      ] } }],
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/productos/instancia" }
+    },
+    {
+      "name": "07 - Validacion: producto invalido (400)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('400 Bad Request', () => pm.response.to.have.status(400));"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/productos",
+        "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"\",\n  \"precio\": -5,\n  \"stock\": 1\n}" }
+      }
+    },
+    {
+      "name": "08 - Producto inexistente (404)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+      ] } }],
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/productos/999999" }
+    },
+    {
+      "name": "09 - Crear pedido",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('201 Created', () => pm.response.to.have.status(201));",
+        "pm.test('Total = precio x cantidad', () => pm.expect(pm.response.json().total).to.eql(270000));",
+        "pm.collectionVariables.set('pedidoId', pm.response.json().id);"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/pedidos",
+        "body": { "mode": "raw", "raw": "{\n  \"productoId\": {{productoId}},\n  \"cantidad\": 2\n}" }
+      }
+    },
+    {
+      "name": "10 - Listar pedidos",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));"
+      ] } }],
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/pedidos" }
+    },
+    {
+      "name": "11 - Obtener pedido por id",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));"
+      ] } }],
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}" }
+    },
+    {
+      "name": "12 - Pedido sin stock suficiente (409)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('409 Conflict', () => pm.response.to.have.status(409));"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/pedidos",
+        "body": { "mode": "raw", "raw": "{\n  \"productoId\": {{productoId}},\n  \"cantidad\": 1000\n}" }
+      }
+    },
+    {
+      "name": "13 - Eliminar producto",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+      ] } }],
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/api/productos/{{productoId}}" }
+    }
+  ]
+}
